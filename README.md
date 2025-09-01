@@ -33,8 +33,8 @@ SOCKS5 offers significant advantages over both SOCKS4 and HTTP proxies:
 
 ### 1. Setup
 ```bash
-git clone <repository-url>
-cd socks5-proxy
+git clone https://github.com/sdlab1/socks5
+cd socks5
 ```
 
 ### 2. Configure Users
