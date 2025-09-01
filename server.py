@@ -2,6 +2,7 @@ import logging
 import select
 import socket
 import struct
+import json
 from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
 
 logging.basicConfig(level=logging.DEBUG)
@@ -9,16 +10,23 @@ logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
 SOCKS_ADDR = '127.0.0.1'
 SOCKS_PORT = 1080
-SOCKS_USER = 'username'
-SOCKS_PASS = 'password'
+# SOCKS_USER = 'username'
+# SOCKS_PASS = 'password'
+
+def load_users():
+    try:
+        with open('users.json', 'r') as f:
+            return {user['username']: user['password'] for user in json.load(f)}
+    except:
+        return {}
 
 class ThreadingTCPServer(ThreadingMixIn, TCPServer):
     pass
 
 
 class SocksProxy(StreamRequestHandler):
-    username = SOCKS_USER
-    password = SOCKS_PASS
+    # username = SOCKS_USER
+    # password = SOCKS_PASS
 
     def handle(self):
         logging.info('Accepting connection from %s:%s' % self.client_address)
@@ -107,7 +115,8 @@ class SocksProxy(StreamRequestHandler):
         password_len = ord(self.connection.recv(1))
         password = self.connection.recv(password_len).decode('utf-8')
 
-        if username == self.username and password == self.password:
+        users = load_users()
+        if username in users and users[username] == password:
             # success, status = 0
             response = struct.pack("!BB", version, 0)
             self.connection.sendall(response)
